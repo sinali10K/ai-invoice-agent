@@ -1,36 +1,38 @@
 import { signIn } from "@/lib/actions/auth"
 import { Button } from "@/components/ui/button"
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { error?: string; message?: string }
+  searchParams: Promise<{ error?: string; message?: string }>
 }) {
+  const params = await searchParams
+
   return (
     <div className="w-full max-w-md space-y-6 p-8 border rounded-xl shadow-sm">
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold">ورود به حساب</h1>
+        <h1 className="text-2xl font-bold">Sign in to your account</h1>
         <p className="text-muted-foreground text-sm">
-          برای ادامه وارد شوید
+          Enter your email and password to continue
         </p>
       </div>
 
-      {searchParams.error && (
+      {params.error && (
         <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">
-          {searchParams.error}
+          {params.error}
         </div>
       )}
 
-      {searchParams.message === "check_email" && (
+      {params.message === "check_email" && (
         <div className="bg-green-50 text-green-700 text-sm p-3 rounded-md">
-          ایمیل تایید ارسال شد. لطفاً اینباکس خود را چک کنید.
+          Confirmation email sent. Please check your inbox.
         </div>
       )}
 
       <form action={signIn} className="space-y-4">
         <div className="space-y-2">
           <label htmlFor="email" className="text-sm font-medium">
-            ایمیل
+            Email
           </label>
           <input
             id="email"
@@ -44,7 +46,7 @@ export default function LoginPage({
 
         <div className="space-y-2">
           <label htmlFor="password" className="text-sm font-medium">
-            رمز عبور
+            Password
           </label>
           <input
             id="password"
@@ -57,7 +59,7 @@ export default function LoginPage({
         </div>
 
         <Button type="submit" className="w-full">
-          ورود
+          Sign in
         </Button>
       </form>
     </div>

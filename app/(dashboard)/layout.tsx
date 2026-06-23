@@ -1,3 +1,5 @@
+import { Sidebar } from "@/components/layout/Sidebar"
+
 export default function DashboardLayout({
   children,
 }: {
@@ -5,9 +7,7 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="min-h-screen flex">
-      <aside className="w-64 border-r">
-        {/* Sidebar - بعداً کامل می‌شه */}
-      </aside>
+      <Sidebar />
       <main className="flex-1 p-8">
         {children}
       </main>
