@@ -1,6 +1,6 @@
 import { inngest } from "@/lib/inngest";
 import { prisma } from "@/lib/prisma";
-import { ReminderTone } from "@/lib/types";
+import { ReminderTone, EscalationStage } from "@/lib/types";
 
 export const checkOverdueFunction = inngest.createFunction(
   { id: "check-overdue-invoices" },
@@ -39,11 +39,26 @@ export const checkOverdueFunction = inngest.createFunction(
       }
 
       let tone: ReminderTone = ReminderTone.FRIENDLY;
+      let stage: EscalationStage = EscalationStage.STAGE_1;
+
       if (daysPastDue >= 30) {
         tone = ReminderTone.FINAL;
-      } else if (daysPastDue >= 14) {
+        stage = EscalationStage.STAGE_4;
+      } else if (daysPastDue >= 16) {
         tone = ReminderTone.FIRM;
+        stage = EscalationStage.STAGE_3;
+      } else if (daysPastDue >= 8) {
+        tone = ReminderTone.FIRM;
+        stage = EscalationStage.STAGE_2;
       }
+
+      // آپدیت escalation stage در DB
+      await step.run(`update-stage-${invoice.id}`, async () => {
+        return prisma.invoice.update({
+          where: { id: invoice.id },
+          data: { escalationStage: stage },
+        });
+      });
 
       const lastReminder = invoice.reminderLogs[0];
       if (lastReminder) {

@@ -20,6 +20,12 @@ enum ReminderTone {
   FIRM
   FINAL
 }
+enum EscalationStage {
+  STAGE_1
+  STAGE_2
+  STAGE_3
+  STAGE_4
+}
 
 // ─── Models ──────────────────────────────────────────
 
@@ -59,6 +65,7 @@ model Invoice {
   amount      Decimal       @db.Decimal(10, 2)
   currency    String        @default("USD")
   status      InvoiceStatus @default(DRAFT)
+  escalationStage EscalationStage?
   dueDate     DateTime
   invoiceDate DateTime      @default(now())
   description String?
