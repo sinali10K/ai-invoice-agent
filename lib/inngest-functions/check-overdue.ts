@@ -3,12 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { ReminderTone } from "@/lib/types";
 
 export const checkOverdueFunction = inngest.createFunction(
-  {
-    id: "check-overdue-invoices",
-    name: "Check Overdue Invoices",
-    triggers: [{ cron: "0 9 * * *" }],
-  } as any,
-  async ({ step }: any) => {
+  { id: "check-overdue-invoices" },
+  { cron: "0 9 * * *" },
+  // @ts-expect-error Inngest 4 handler type
+  async ({ step }) => {
     const overdueInvoices = await step.run("fetch-overdue-invoices", async () => {
       return prisma.invoice.findMany({
         where: {

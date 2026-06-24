@@ -2,15 +2,13 @@ import { inngest } from "@/lib/inngest";
 import { prisma } from "@/lib/prisma";
 import { generateReminderEmail } from "@/lib/ai";
 import { sendReminderEmail } from "@/lib/resend";
-import { ReminderTone } from "@/lib/types";
+import type { ReminderTone } from "@/lib/types";
 
 export const sendReminderFunction = inngest.createFunction(
-  {
-    id: "send-invoice-reminder",
-    name: "Send Invoice Reminder",
-    triggers: [{ event: "invoice/reminder.send" }],
-  } as any,
-  async ({ event, step }: any) => {
+  { id: "send-invoice-reminder" },
+  { event: "invoice/reminder.send" },
+  // @ts-expect-error Inngest 4 handler type
+  async ({ event, step }) => {
     const { invoiceId, tone } = event.data as {
       invoiceId: string;
       tone: ReminderTone;
