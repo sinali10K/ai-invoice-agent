@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { generateReminderEmail } from "@/lib/ai";
 import { sendReminderEmail } from "@/lib/resend";
 import { NextResponse } from "next/server";
-import { ReminderTone } from "@prisma/client";
+import { ReminderTone } from "@/lib/types";
 
 // POST /api/invoices/:id/remind
 export async function POST(

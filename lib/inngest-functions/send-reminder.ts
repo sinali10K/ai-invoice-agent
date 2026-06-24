@@ -2,7 +2,7 @@ import { inngest } from "@/lib/inngest";
 import { prisma } from "@/lib/prisma";
 import { generateReminderEmail } from "@/lib/ai";
 import { sendReminderEmail } from "@/lib/resend";
-import { ReminderTone } from "@prisma/client";
+import { ReminderTone } from "@/lib/types";
 
 export const sendReminderFunction = inngest.createFunction(
   {

@@ -1,4 +1,4 @@
-import { ReminderTone } from "@prisma/client";
+import { ReminderTone } from "@/lib/types";
 
 interface GenerateReminderEmailParams {
   clientName: string;

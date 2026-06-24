@@ -1,6 +1,6 @@
 import { inngest } from "@/lib/inngest";
 import { prisma } from "@/lib/prisma";
-import { ReminderTone } from "@prisma/client";
+import { ReminderTone } from "@/lib/types";
 
 export const checkOverdueFunction = inngest.createFunction(
   {
