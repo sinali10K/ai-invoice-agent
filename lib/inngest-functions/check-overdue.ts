@@ -3,9 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { ReminderTone, EscalationStage } from "@/lib/types";
 
 export const checkOverdueFunction = inngest.createFunction(
-  { id: "check-overdue-invoices" },
-  { cron: "0 9 * * *" },
-  // @ts-expect-error Inngest 4 handler type
+  { id: "check-overdue-invoices", triggers: [{ cron: "0 9 * * *" }] },
   async ({ step }) => {
     const overdueInvoices = await step.run("fetch-overdue-invoices", async () => {
       return prisma.invoice.findMany({
@@ -26,7 +24,7 @@ export const checkOverdueFunction = inngest.createFunction(
 
     for (const invoice of overdueInvoices) {
       const daysPastDue = Math.floor(
-        (new Date().getTime() - invoice.dueDate.getTime()) / (1000 * 60 * 60 * 24)
+        (new Date().getTime() - new Date(invoice.dueDate).getTime()) / (1000 * 60 * 60 * 24)
       );
 
       if (invoice.status === "SENT") {
@@ -63,7 +61,7 @@ export const checkOverdueFunction = inngest.createFunction(
       const lastReminder = invoice.reminderLogs[0];
       if (lastReminder) {
         const daysSinceLastReminder = Math.floor(
-          (new Date().getTime() - lastReminder.sentAt.getTime()) / (1000 * 60 * 60 * 24)
+          (new Date().getTime() - new Date(lastReminder.sentAt).getTime()) / (1000 * 60 * 60 * 24)
         );
         if (daysSinceLastReminder < 3) {
           results.push({ invoiceId: invoice.id, skipped: true });

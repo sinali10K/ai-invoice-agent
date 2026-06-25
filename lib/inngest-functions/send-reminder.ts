@@ -5,9 +5,7 @@ import { sendReminderEmail } from "@/lib/resend";
 import type { ReminderTone } from "@/lib/types";
 
 export const sendReminderFunction = inngest.createFunction(
-  { id: "send-invoice-reminder" },
-  { event: "invoice/reminder.send" },
-  // @ts-expect-error Inngest 4 handler type
+  { id: "send-invoice-reminder", triggers: [{ event: "invoice/reminder.send" }] },
   async ({ event, step }) => {
     const { invoiceId, tone } = event.data as {
       invoiceId: string;
@@ -32,7 +30,7 @@ export const sendReminderFunction = inngest.createFunction(
     const daysPastDue = Math.max(
       0,
       Math.floor(
-        (new Date().getTime() - invoice.dueDate.getTime()) / (1000 * 60 * 60 * 24)
+        (new Date().getTime() - new Date(invoice.dueDate).getTime()) / (1000 * 60 * 60 * 24)
       )
     );
 
@@ -41,7 +39,7 @@ export const sendReminderFunction = inngest.createFunction(
         clientName: invoice.client.name,
         amount: Number(invoice.amount),
         currency: invoice.currency,
-        dueDate: invoice.dueDate,
+        dueDate: new Date(invoice.dueDate),
         daysPastDue,
         tone,
         freelancerName: invoice.user.name ?? "Your Service Provider",
