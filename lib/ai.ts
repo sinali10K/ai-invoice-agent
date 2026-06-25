@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import type { ReminderTone } from "@/lib/types";
 
 interface GenerateReminderEmailParams {
@@ -40,8 +40,7 @@ async function generateWithGemini(
     escalationStage = 1,
   } = params;
 
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-8b" });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
   const formattedAmount = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -76,8 +75,11 @@ Rules:
 Respond ONLY with a valid JSON object, no markdown, no explanation:
 {"subject": "email subject here", "body": "email body here"}`;
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
+  const result = await ai.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: prompt,
+  });
+  const text = result.text ?? "";
 
   try {
     const clean = text.replace(/```json|```/g, "").trim();
