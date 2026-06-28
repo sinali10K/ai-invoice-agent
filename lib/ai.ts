@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import Groq from "groq-sdk";
 import type { ReminderTone } from "@/lib/types";
 
 interface GenerateReminderEmailParams {
@@ -20,13 +20,13 @@ interface GeneratedEmail {
 export async function generateReminderEmail(
   params: GenerateReminderEmailParams
 ): Promise<GeneratedEmail> {
-  if (process.env.GEMINI_API_KEY) {
-    return generateWithGemini(params);
+  if (process.env.GROQ_API_KEY) {
+    return generateWithGroq(params);
   }
   return generateMockEmail(params);
 }
 
-async function generateWithGemini(
+async function generateWithGroq(
   params: GenerateReminderEmailParams
 ): Promise<GeneratedEmail> {
   const {
@@ -40,7 +40,7 @@ async function generateWithGemini(
     escalationStage = 1,
   } = params;
 
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
 
   const formattedAmount = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -75,11 +75,12 @@ Rules:
 Respond ONLY with a valid JSON object, no markdown, no explanation:
 {"subject": "email subject here", "body": "email body here"}`;
 
-  const result = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
-    contents: prompt,
+  const result = await groq.chat.completions.create({
+    model: "llama3-8b-8192",
+    messages: [{ role: "user", content: prompt }],
   });
-  const text = result.text ?? "";
+
+  const text = result.choices[0]?.message?.content ?? "";
 
   try {
     const clean = text.replace(/```json|```/g, "").trim();
