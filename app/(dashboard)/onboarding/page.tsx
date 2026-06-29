@@ -1,4 +1,41 @@
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+
 export default function OnboardingPage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    const formData = new FormData(e.currentTarget)
+
+    try {
+      const res = await fetch("/api/user/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          businessName: formData.get("businessName"),
+          name: formData.get("name"),
+          currency: formData.get("currency"),
+        }),
+      })
+
+      if (!res.ok) throw new Error("Failed to save")
+
+      router.push("/onboarding/step-2")
+    } catch {
+      router.push("/onboarding/step-2")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <div className="text-center space-y-2">
@@ -36,10 +73,17 @@ export default function OnboardingPage() {
           </p>
         </div>
 
-        <div className="space-y-4">
+        {error && (
+          <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Business Name</label>
             <input
+              name="businessName"
               type="text"
               placeholder="Acme Freelance Studio"
               className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -49,6 +93,7 @@ export default function OnboardingPage() {
           <div className="space-y-2">
             <label className="text-sm font-medium">Your Name</label>
             <input
+              name="name"
               type="text"
               placeholder="John Smith"
               className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -57,20 +102,27 @@ export default function OnboardingPage() {
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Default Currency</label>
-            <select className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+            <select
+              name="currency"
+              className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
               <option value="USD">USD — US Dollar</option>
               <option value="EUR">EUR — Euro</option>
               <option value="GBP">GBP — British Pound</option>
               <option value="CAD">CAD — Canadian Dollar</option>
             </select>
           </div>
-        </div>
 
-        <div className="flex justify-end">
-          <button className="px-6 py-2 bg-primary text-primary-foreground text-sm rounded-md hover:bg-primary/90 transition-colors">
-            Continue →
-          </button>
-        </div>
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-2 bg-primary text-primary-foreground text-sm rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+            >
+              {loading ? "Saving..." : "Continue →"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )
