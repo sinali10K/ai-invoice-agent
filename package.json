@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "HTTPS_PROXY=http://127.0.0.1:10808 HTTP_PROXY=http://127.0.0.1:10808 next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -22,6 +22,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "groq-sdk": "^1.3.0",
+    "https-proxy-agent": "^9.1.0",
     "inngest": "^4.7.0",
     "lucide-react": "^1.21.0",
     "next": "16.2.9",

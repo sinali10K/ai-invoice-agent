@@ -1,4 +1,4 @@
-import Groq from "groq-sdk";
+import { HttpsProxyAgent } from "https-proxy-agent";
 import type { ReminderTone } from "@/lib/types";
 
 interface GenerateReminderEmailParams {
@@ -40,7 +40,8 @@ async function generateWithGroq(
     escalationStage = 1,
   } = params;
 
-  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
+  const proxyUrl = process.env.HTTPS_PROXY || process.env.https_proxy;
+  const agent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : undefined;
 
   const formattedAmount = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -75,12 +76,25 @@ Rules:
 Respond ONLY with a valid JSON object, no markdown, no explanation:
 {"subject": "email subject here", "body": "email body here"}`;
 
-  const result = await groq.chat.completions.create({
-    model: "llama-3.1-8b-instant",
-    messages: [{ role: "user", content: prompt }],
+  
+
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "llama-3.1-8b-instant",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.7,
+      max_tokens: 500,
+    }),
+    ...(agent ? { agent } as any : {}),
   });
 
-  const text = result.choices[0]?.message?.content ?? "";
+  const data = await response.json() as any;
+  const text = data.choices?.[0]?.message?.content ?? "";
 
   try {
     const clean = text.replace(/```json|```/g, "").trim();
